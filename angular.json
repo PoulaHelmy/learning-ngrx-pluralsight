@@ -124,6 +124,10 @@
           }
         }
       }
-    }},
-  "defaultProject": "ngrx-pluralsight"
+    }
+  },
+  "defaultProject": "ngrx-pluralsight",
+  "cli": {
+    "analytics": false
+  }
 }
