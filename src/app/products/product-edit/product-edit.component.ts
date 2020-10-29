@@ -23,14 +23,12 @@ export class ProductEditComponent implements OnInit {
   pageTitle = 'Product Edit';
   errorMessage = '';
   productForm: FormGroup;
-
-  product: Product | null;
+  Product$: Observable<Product | null>;
 
   // Use with the generic validation message class
   displayMessage: { [key: string]: string } = {};
   private validationMessages: { [key: string]: { [key: string]: string } };
   private genericValidator: GenericValidator;
-  Product$: Observable<Product | null>;
 
   constructor(
     private store: Store<State>,
@@ -42,7 +40,6 @@ export class ProductEditComponent implements OnInit {
     this.validationMessages = {
       productName: {
         required: 'Product name is required.',
-        minlength: 'Product name must be at least three characters.',
         maxlength: 'Product name cannot exceed 50 characters.',
       },
       productCode: {
@@ -61,14 +58,7 @@ export class ProductEditComponent implements OnInit {
   ngOnInit(): void {
     // Define the form group
     this.productForm = this.fb.group({
-      productName: [
-        '',
-        [
-          Validators.required,
-          Validators.minLength(3),
-          Validators.maxLength(50),
-        ],
-      ],
+      productName: ['', [Validators.required, Validators.maxLength(50)]],
       productCode: ['', Validators.required],
       starRating: ['', NumberValidators.range(1, 5)],
       description: '',
@@ -126,10 +116,9 @@ export class ProductEditComponent implements OnInit {
   deleteProduct(product: Product): void {
     if (product && product.id) {
       if (confirm(`Really delete the product: ${product.productName}?`)) {
-        this.productService.deleteProduct(product.id).subscribe({
-          next: () => this.store.dispatch(ProductActions.clearCurrentProduct()),
-          error: (err) => (this.errorMessage = err),
-        });
+        this.store.dispatch(
+          ProductActions.deleteProduct({ productId: product.id })
+        );
       }
     } else {
       // No need to delete, it was never saved
@@ -144,23 +133,10 @@ export class ProductEditComponent implements OnInit {
         // Then copy over the values from the form
         // This ensures values not on the form, such as the Id, are retained
         const product = { ...originalProduct, ...this.productForm.value };
-
         if (product.id === 0) {
-          this.productService.createProduct(product).subscribe({
-            next: (p) =>
-              this.store.dispatch(
-                ProductActions.setCurrentProduct({ currentProductId: p.id })
-              ),
-            error: (err) => (this.errorMessage = err),
-          });
+          this.store.dispatch(ProductActions.createProduct({ product }));
         } else {
-          this.productService.updateProduct(product).subscribe({
-            next: (p) =>
-              this.store.dispatch(
-                ProductActions.setCurrentProduct({ currentProductId: p.id })
-              ),
-            error: (err) => (this.errorMessage = err),
-          });
+          this.store.dispatch(ProductActions.updateProduct({ product }));
         }
       }
     }

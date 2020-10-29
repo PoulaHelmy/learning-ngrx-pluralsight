@@ -15,7 +15,6 @@ export class ProductService {
 
   getProducts(): Observable<Product[]> {
     return this.http.get<Product[]>(this.productsUrl).pipe(
-      tap((data) => console.log(JSON.stringify(data))),
       catchError(this.handleError)
     );
   }
@@ -26,10 +25,7 @@ export class ProductService {
     const newProduct = { ...product, id: null };
     return this.http
       .post<Product>(this.productsUrl, newProduct, { headers })
-      .pipe(
-        tap((data) => console.log('createProduct: ' + JSON.stringify(data))),
-        catchError(this.handleError)
-      );
+      .pipe(catchError(this.handleError));
   }
 
   deleteProduct(id: number): Observable<{}> {
@@ -37,10 +33,7 @@ export class ProductService {
     const url = `${this.productsUrl}/${id}`;
     return this.http
       .delete<Product>(url, { headers })
-      .pipe(
-        tap((data) => console.log('deleteProduct: ' + id)),
-        catchError(this.handleError)
-      );
+      .pipe(catchError(this.handleError));
   }
 
   updateProduct(product: Product): Observable<Product> {
@@ -49,7 +42,6 @@ export class ProductService {
     return this.http
       .put<Product>(url, product, { headers })
       .pipe(
-        tap(() => console.log('updateProduct: ' + product.id)),
         // Return the product on an update
         map(() => product),
         catchError(this.handleError)

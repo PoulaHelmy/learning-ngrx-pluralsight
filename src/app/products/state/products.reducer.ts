@@ -117,5 +117,71 @@ export const productReducer = createReducer<ProductState>(
         error: action.error,
       };
     }
+  ),
+  on(
+    ProductActions.updateProductSuccess,
+    (state, action): ProductState => {
+      const updatedProducts = state.products.map((item) =>
+        action.product.id === item.id ? action.product : item
+      );
+      return {
+        ...state,
+        products: updatedProducts,
+        currentProductId: action.product.id,
+        error: '',
+      };
+    }
+  ),
+  on(
+    ProductActions.updateProductFailure,
+    (state, action): ProductState => {
+      return {
+        ...state,
+        error: action.error,
+      };
+    }
+  ),
+  on(
+    ProductActions.createProductSuccess,
+    (state, action): ProductState => {
+      return {
+        ...state,
+        products: [...state.products, action.product],
+        currentProductId: action.product.id,
+        error: '',
+      };
+    }
+  ),
+  on(
+    ProductActions.createroductFailure,
+    (state, action): ProductState => {
+      return {
+        ...state,
+        error: action.error,
+      };
+    }
+  ),
+  // After a delete, the currentProduct is null.
+  on(
+    ProductActions.deleteProductSuccess,
+    (state, action): ProductState => {
+      return {
+        ...state,
+        products: state.products.filter(
+          (product) => product.id !== action.productId
+        ),
+        currentProductId: null,
+        error: '',
+      };
+    }
+  ),
+  on(
+    ProductActions.deleteProductFailure,
+    (state, action): ProductState => {
+      return {
+        ...state,
+        error: action.error,
+      };
+    }
   )
 );
